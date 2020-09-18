@@ -8,7 +8,7 @@
 
 import Foundation
 
-class FractionFormatter: NumberFormatter {
+public class FractionFormatter: NumberFormatter {
     
     /**
      Allows us to use comon Unicode fractions when availible
