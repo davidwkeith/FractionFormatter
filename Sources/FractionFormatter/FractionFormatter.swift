@@ -196,7 +196,7 @@ public class FractionFormatter: NumberFormatter {
      Return a double from a string with valid fractions
      Assumes the string is number-like. e.g. "1 1/2" would return 1.5
      */
-    func double(from input: String) -> Double? {
+    public func double(from input: String) -> Double? {
         var string = input
         
         // Check if decimal
@@ -254,7 +254,7 @@ public class FractionFormatter: NumberFormatter {
      Return a unicode string from a string with valid fractions
      Assumes the string is number-like. e.g. "1 1/2" would return "1½"
      */
-    func string(from string: String) -> String? {
+    public func string(from string: String) -> String? {
         let decimal = self.double(from: string)
         return (decimal == nil) ? nil : self.string(from: NSNumber(value: decimal!))
     }
@@ -263,7 +263,7 @@ public class FractionFormatter: NumberFormatter {
      Return a unicode string from a NSNumber
      e.g. 1.5 would return "1½"
      */
-    override func string(from number: NSNumber) -> String? {
+    public override func string(from number: NSNumber) -> String? {
         let wholeUnits = Int(floor(Double(truncating: number)))
         let fractionalPart = Double(truncating: number) - Double(wholeUnits)
         let denominator = Double(truncating:pow(10.0, String(fractionalPart).count) as NSNumber)
