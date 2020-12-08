@@ -152,8 +152,8 @@ public class FractionFormatter: NumberFormatter {
                 fraction += String(removeFormatting(char) ?? "_")
             }
         }
-        return [integer, fraction].joined(separator: " ").trimmingCharacters(in:
-                                                                                CharacterSet.whitespacesAndNewlines)
+        return [integer, fraction].joined(separator: " ")
+            .trimmingCharacters(in:CharacterSet.whitespacesAndNewlines)
     }
     
     /**
