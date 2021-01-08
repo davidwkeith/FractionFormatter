@@ -1,6 +1,5 @@
 //
 //  FractionFormatter.swift
-//  Cena
 //
 //  Created by David W. Keith on 14/Sept/20.
 //  Copyright © 2020 dwk. All rights reserved.
@@ -11,7 +10,7 @@ import Foundation
 public class FractionFormatter: NumberFormatter {
     
     /**
-     Allows us to use comon Unicode fractions when availible
+     Allows us to use vulgar Unicode fractions glyphs when availible
      */
     static let vulgarFractions = [
         0.1: "⅒",
@@ -65,6 +64,9 @@ public class FractionFormatter: NumberFormatter {
         "9": "₉",
     ]
     
+    /**
+     A union of our superscript, subscript, and the fraction slash characters
+     */
     var formattedFractionCharacterSet: CharacterSet {
         var characterSet = CharacterSet.init(charactersIn:Array(FractionFormatter.unicodeSuperscript.values).joined())
         characterSet.insert(charactersIn: Array(FractionFormatter.unicodeSuperscript.values).joined())
@@ -114,14 +116,23 @@ public class FractionFormatter: NumberFormatter {
         return ret.contains("_") ? nil : ret
     }
     
+    /**
+    Return the specified Int as a superscripted String
+     */
     private func superscrpt(_ num: Int) -> String? {
         return scripted(num, scriptChars: FractionFormatter.unicodeSuperscript)
     }
     
+    /**
+     Return the specified Int as a subscripted String
+     */
     private func subscrpt(_ num: Int) -> String? {
         return scripted(num, scriptChars: FractionFormatter.unicodeSubscript)
     }
     
+    /**
+    Convert from super/subscript representation to normal ASCII for the digit
+     */
     internal func removeFormatting(_ scriptedNum: Character) -> Character? {
         for (digit, sup) in FractionFormatter.unicodeSuperscript {
             if sup == String(scriptedNum) {
@@ -175,6 +186,9 @@ public class FractionFormatter: NumberFormatter {
         return (integer, fraction.contains("_") ? nil: fraction)
     }
     
+    /**
+     Attempt to parse the string as a vulgar fraction, otherwise return nil
+     */
     internal func parseVulgarFraction(_ string: String) -> Double? {
         for (decimal, fraction) in FractionFormatter.vulgarFractions {
             if string == fraction {
