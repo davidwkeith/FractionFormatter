@@ -125,11 +125,12 @@ final class FractionFormatterTests: XCTestCase {
     
     let allTests = [
         "testScripted": testScripted,
-        "testremoveFormatting": testRemoveFormatting,
+        "testRemoveFormatting": testRemoveFormatting,
         "testStringShilling": testStringShilling,
         "testParseVulgarFraction": testParseVulgarFraction,
         "testVulgarFractions": testVulgarFractions,
         "testCustomUnicodeFractions": testCustomUnicodeFractions,
         "testComplexVulgarFractions": testComplexVulgarFractions,
+        "testExpectedNils": testExpectedNils,
     ]
 }
