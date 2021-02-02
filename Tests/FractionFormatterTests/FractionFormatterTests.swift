@@ -134,3 +134,11 @@ final class FractionFormatterTests: XCTestCase {
         "testExpectedNils": testExpectedNils,
     ]
 }
+
+#if !canImport(ObjectiveC)
+public func allTests() -> [XCTestCaseEntry] {
+    return [
+        testCase(FractionFormatterTests.allTests),
+    ]
+}
+#endif
