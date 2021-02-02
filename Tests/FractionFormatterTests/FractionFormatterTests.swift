@@ -136,7 +136,7 @@ final class FractionFormatterTests: XCTestCase {
 }
 
 #if !canImport(ObjectiveC)
-public func allTests() -> [XCTestCaseEntry] {
+public func tests() -> [XCTestCaseEntry] {
     return [
         testCase(FractionFormatterTests.allTests),
     ]
