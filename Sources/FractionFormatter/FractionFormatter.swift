@@ -63,7 +63,14 @@ public class FractionFormatter: NumberFormatter {
         "8": "₈",
         "9": "₉",
     ]
-    
+
+    public enum FractionType {
+        //      case Case
+        //      case BuiltUp
+        case Shilling
+        case Special
+    }
+
     /**
      A union of our superscript, subscript, and the fraction slash characters
      */
@@ -73,7 +80,7 @@ public class FractionFormatter: NumberFormatter {
         characterSet.insert(charactersIn: String(fractionSlash))
         return characterSet
     }
-    
+
     /**
      The set of all characters that we can parse, if a string contains characters not in this set, we can't parse it for sure.
      */
@@ -85,7 +92,7 @@ public class FractionFormatter: NumberFormatter {
         characterSet.formUnion(CharacterSet.decimalDigits)
         return characterSet
     }
-    
+
     /**
      Convience, these can be hard to tell apart in complex strings
      */
@@ -148,26 +155,6 @@ public class FractionFormatter: NumberFormatter {
     }
     
     /**
-     Normalize string as an ASCII fraction
-     eg "1¹²³⁄₁₀₀₀" becomes "1 123/1000"
-     */
-    internal func convertToASCII(_ string: String) -> String? {
-        var integer = ""
-        var fraction = ""
-        for char in string {
-            if CharacterSet.decimalDigits.contains(Unicode.Scalar(String(char)) ?? "_") {
-                integer += String(char)
-            } else if char == fractionSlash {
-                fraction += String(slash)
-            } else {
-                fraction += String(removeFormatting(char) ?? "_")
-            }
-        }
-        return [integer, fraction].joined(separator: " ")
-            .trimmingCharacters(in:CharacterSet.whitespacesAndNewlines)
-    }
-    
-    /**
      Converts the unicode fraction into an integer and a slash seperated fraction
      eg "1¹²³⁄₁₀₀₀" becomes ("1", "123/1000")
      */
@@ -185,7 +172,7 @@ public class FractionFormatter: NumberFormatter {
         }
         return (integer, fraction.contains("_") ? nil: fraction)
     }
-    
+
     /**
      Attempt to parse the string as a vulgar fraction, otherwise return nil
      */
@@ -207,6 +194,26 @@ public class FractionFormatter: NumberFormatter {
     }
 
     /**
+     Normalize string as a shilling fraction (ASCII)
+     eg "1¹²³⁄₁₀₀₀" becomes "1 123/1000"
+     */
+    private func shilling(_ string: String) -> String? {
+        var integer = ""
+        var fraction = ""
+        for char in string {
+            if CharacterSet.decimalDigits.contains(Unicode.Scalar(String(char)) ?? "_") {
+                integer += String(char)
+            } else if char == fractionSlash {
+                fraction += String(slash)
+            } else {
+                fraction += String(removeFormatting(char) ?? "_")
+            }
+        }
+        return [integer, fraction].joined(separator: " ")
+            .trimmingCharacters(in:CharacterSet.whitespacesAndNewlines)
+    }
+
+    /**
      Return a double from a string with valid fractions
      Assumes the string is number-like. e.g. "1 1/2" would return 1.5
      */
@@ -225,9 +232,9 @@ public class FractionFormatter: NumberFormatter {
             return parsed
         }
 
-        // standardize as ASCII fraction
+        // standardize as ASCII (Shilling) fraction
         if string.contains(fractionSlash) {
-            let ascii = convertToASCII(string)
+            let ascii = shilling(string)
             if ascii == nil {
                 return nil
             }
@@ -272,7 +279,25 @@ public class FractionFormatter: NumberFormatter {
         let decimal = self.double(from: string)
         return (decimal == nil) ? nil : self.string(from: NSNumber(value: decimal!))
     }
-    
+
+    public func string(from str: String, as fractionType: FractionType) -> String? {
+        switch fractionType {
+            case .Special:
+                return string(from: str)
+            case .Shilling:
+                return shilling(str)
+        }
+    }
+
+    public func string(from number: NSNumber, as fractionType: FractionType) -> String? {
+        switch fractionType {
+            case .Special:
+                return string(from: number)
+            case .Shilling:
+                return shilling(string(from: number) ?? "")
+        }
+    }
+
     /**
      Return a unicode string from a NSNumber
      e.g. 1.5 would return "1½"

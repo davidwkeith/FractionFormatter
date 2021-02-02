@@ -6,10 +6,9 @@ import PackageDescription
 let package = Package(
     name: "FractionFormatter",
     platforms: [
-        .iOS(.v12),
-        .macOS(.v10_14),
-        .tvOS(.v12),
-        .watchOS(.v5)
+        .iOS(.v8),
+        .macOS(.v10_13),
+        .tvOS(.v9),
     ],
     products: [
         // Products define the executables and libraries a package produces, and make them visible to other packages.
@@ -31,5 +30,5 @@ let package = Package(
             name: "FractionFormatterTests",
             dependencies: ["FractionFormatter"]),
     ],
-    swiftLanguageVersions: [.v4, .v5]
+    swiftLanguageVersions: [.v5]
 )

@@ -41,7 +41,7 @@ final class FractionFormatterTests: XCTestCase {
         }
     }
 
-    func testremoveFormatting() {
+    func testRemoveFormatting() {
         for (integer, superInteger) in superscriptExamples {
             XCTAssertEqual(fractionFormatter.removeFormatting(superInteger.first!), String(integer).first)
         }
@@ -50,14 +50,14 @@ final class FractionFormatterTests: XCTestCase {
         }
     }
 
-    func testConvertToASCII() {
+    func testStringShilling() {
         let fractionExamples = [
             "1¹²³⁄₁₀₀₀": "1 123/1000",
             "¹²³⁄₁₀₀₀": "123/1000",
             "¹²³⁄₋₁₀₀₀": "123/-1000",
         ]
         for (unicode, ascii) in fractionExamples {
-            XCTAssertEqual(fractionFormatter.convertToASCII(unicode), ascii)
+            XCTAssertEqual(fractionFormatter.string(from: unicode, as: .Shilling), ascii)
         }
     }
 
@@ -125,8 +125,8 @@ final class FractionFormatterTests: XCTestCase {
     
     let allTests = [
         "testScripted": testScripted,
-        "testremoveFormatting": testremoveFormatting,
-        "testConvertToASCII": testConvertToASCII,
+        "testremoveFormatting": testRemoveFormatting,
+        "testStringShilling": testStringShilling,
         "testParseVulgarFraction": testParseVulgarFraction,
         "testVulgarFractions": testVulgarFractions,
         "testCustomUnicodeFractions": testCustomUnicodeFractions,
