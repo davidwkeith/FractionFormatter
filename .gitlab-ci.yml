@@ -1,7 +1,13 @@
 image: swift:latest
 
+stages:
+  - build
+  - test
+
 build:
-  script: swift build
+  script:
+    - "swift -version"
+    - "swift build"
 
 test:
-  script: swift test
+  script: "swift test"
