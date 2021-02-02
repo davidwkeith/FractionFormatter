@@ -10,4 +10,4 @@ build:
     - "swift build"
 
 test:
-  script: "swift test -parallel"
+  script: "swift test --parallel"
