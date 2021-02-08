@@ -1,13 +1,10 @@
 image: swift:latest
 
 stages:
-  - build
   - test
 
-build:
+test:
   script:
     - "swift -version"
     - "swift build"
-
-test:
-  script: "swift test --parallel"
+    - "swift test --parallel"
