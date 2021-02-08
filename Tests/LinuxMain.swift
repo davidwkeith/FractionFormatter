@@ -3,6 +3,5 @@ import XCTest
 import FractionFormatterTests
 
 var tests = [XCTestCaseEntry]()
-tests += FractionFormatterTests.tests()
-
+tests += FractionFormatterTests.allTests()
 XCTMain(tests)

@@ -123,22 +123,14 @@ final class FractionFormatterTests: XCTestCase {
         }
     }
     
-    let allTests = [
-        "testScripted": testScripted,
-        "testRemoveFormatting": testRemoveFormatting,
-        "testStringShilling": testStringShilling,
-        "testParseVulgarFraction": testParseVulgarFraction,
-        "testVulgarFractions": testVulgarFractions,
-        "testCustomUnicodeFractions": testCustomUnicodeFractions,
-        "testComplexVulgarFractions": testComplexVulgarFractions,
-        "testExpectedNils": testExpectedNils,
+    static var allTests = [
+        ("testScripted", testScripted),
+        ("testRemoveFormatting", testRemoveFormatting),
+        ("testStringShilling", testStringShilling),
+        ("testParseVulgarFraction", testParseVulgarFraction),
+        ("testVulgarFractions", testVulgarFractions),
+        ("testCustomUnicodeFractions", testCustomUnicodeFractions),
+        ("testComplexVulgarFractions", testComplexVulgarFractions),
+        ("testExpectedNils", testExpectedNils),
     ]
 }
-
-#if !canImport(ObjectiveC)
-public func tests() -> [XCTestCaseEntry] {
-    return [
-        testCase(FractionFormatterTests.allTests),
-    ]
-}
-#endif
