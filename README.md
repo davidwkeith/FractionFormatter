@@ -21,11 +21,10 @@ fractionFormatter.string(from: NSNumber(value: 0.123)) // "¹²³⁄₁₀₀₀
 There are of course some connivance methods that make working with strings containing fractions easier:
 
 ```swift
-
 fractionFormatter.double(from: "1 ½") // 1.5
 fractionFormatter.double(from: "1 1/2") // 1.5
 fractionFormatter.string(from: "1 1/2") // "1 ½" (useful for user input)
-fractionFormatter.string(from: "1 ½", ) // 1 1/2
+fractionFormatter.shilling(from: "1 ½", ) // 1 1/2
 ```
 
 ## Filing feature requests and issues
