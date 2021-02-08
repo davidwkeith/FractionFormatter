@@ -197,7 +197,7 @@ public class FractionFormatter: NumberFormatter {
      Normalize string as a shilling fraction (ASCII)
      eg "1¹²³⁄₁₀₀₀" becomes "1 123/1000"
      */
-    private func shilling(_ string: String) -> String? {
+    private func shilling(from string: String) -> String? {
         var integer = ""
         var fraction = ""
         for char in string {
@@ -234,7 +234,7 @@ public class FractionFormatter: NumberFormatter {
 
         // standardize as ASCII (Shilling) fraction
         if string.contains(fractionSlash) {
-            let ascii = shilling(string)
+            let ascii = shilling(from: string)
             if ascii == nil {
                 return nil
             }
@@ -285,7 +285,7 @@ public class FractionFormatter: NumberFormatter {
             case .Special:
                 return string(from: str)
             case .Shilling:
-                return shilling(str)
+                return shilling(from: str)
         }
     }
 
@@ -294,7 +294,7 @@ public class FractionFormatter: NumberFormatter {
             case .Special:
                 return string(from: number)
             case .Shilling:
-                return shilling(string(from: number) ?? "")
+                return shilling(from: string(from: number) ?? "")
         }
     }
 
