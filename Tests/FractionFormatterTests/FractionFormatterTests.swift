@@ -65,7 +65,7 @@ final class FractionFormatterTests: XCTestCase {
         let fractionExamples = [
             1.5: "1½",
             1000.6: "1000⅗",
-            5.125: "5 ⅛",
+            5.125: "5 ⅛", // Test that we accept otherwise valid fractions with extra space
         ]
         for (double, fraction) in FractionFormatter.vulgarFractions {
             XCTAssertEqual(fractionFormatter.parseVulgarFraction(fraction), double)
@@ -119,7 +119,6 @@ final class FractionFormatterTests: XCTestCase {
         ]
         for fraction in fractionExamples {
             XCTAssertEqual(fractionFormatter.string(from: fraction), nil)
-
         }
     }
     

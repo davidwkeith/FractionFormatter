@@ -7,10 +7,13 @@
 
 import Foundation
 
+/**
+ Formats numbers as fractions.
+*/
 public class FractionFormatter: NumberFormatter {
     
     /**
-     Allows us to use vulgar Unicode fractions glyphs when availible
+     Allows us to use vulgar Unicode fractions glyphs when availible in Unicode.
      */
     static let vulgarFractions = [
         0.1: "⅒",
@@ -64,6 +67,10 @@ public class FractionFormatter: NumberFormatter {
         "9": "₉",
     ]
 
+    /**
+     The type of fraction to output. A ``Shilling`` fraction used just ASCII (e.g. 1/2) wheras
+     a ``Special`` fraction uses the Unicode glyphs for fractions (e.g.½).
+     */
     public enum FractionType {
         //      case Case
         //      case BuiltUp
@@ -155,7 +162,7 @@ public class FractionFormatter: NumberFormatter {
     }
     
     /**
-     Converts the unicode fraction into an integer and a slash seperated fraction
+     Converts the ``Special`` fraction into an integer and a ``Shilling`` fraction
      eg "1¹²³⁄₁₀₀₀" becomes ("1", "123/1000")
      */
     internal func getPartsFromUnicodeFraction(_ str: String) -> (String, String?) {
@@ -194,7 +201,7 @@ public class FractionFormatter: NumberFormatter {
     }
 
     /**
-     Normalize string as a shilling fraction (ASCII)
+     Normalize string as a ``Shilling`` fraction (ASCII)
      eg "1¹²³⁄₁₀₀₀" becomes "1 123/1000"
      */
     private func shilling(from string: String) -> String? {
@@ -232,7 +239,7 @@ public class FractionFormatter: NumberFormatter {
             return parsed
         }
 
-        // standardize as ASCII (Shilling) fraction
+        // standardize as Shilling fraction
         if string.contains(fractionSlash) {
             let ascii = shilling(from: string)
             if ascii == nil {
@@ -272,14 +279,23 @@ public class FractionFormatter: NumberFormatter {
     }
     
     /**
-     Return a unicode string from a string with valid fractions
+     Generate a unicode string with ``Special`` fractions from a string of numbers with valid fractional parts.
+
      Assumes the string is number-like. e.g. "1 1/2" would return "1½"
+
+     - Parameter string
+     - Returns string
      */
     public func string(from string: String) -> String? {
         let decimal = self.double(from: string)
         return (decimal == nil) ? nil : self.string(from: NSNumber(value: decimal!))
     }
 
+    /**
+     Generate a unicode string with the specificed fraction format from a string of numbers with valid fractional parts.
+     
+     Assumes the string is number-like. e.g. "1 1/2" would return "1½"
+     */
     public func string(from str: String, as fractionType: FractionType) -> String? {
         switch fractionType {
             case .Special:
@@ -289,6 +305,9 @@ public class FractionFormatter: NumberFormatter {
         }
     }
 
+    /**
+     Generate a unicode string with the specificed fraction format from a ``NSNumber``.
+     */
     public func string(from number: NSNumber, as fractionType: FractionType) -> String? {
         switch fractionType {
             case .Special:
@@ -299,7 +318,7 @@ public class FractionFormatter: NumberFormatter {
     }
 
     /**
-     Return a unicode string from a NSNumber
+     Generate a unicode string with ``Special`` fractions from a ``NSNumber``.
      e.g. 1.5 would return "1½"
      */
     public override func string(from number: NSNumber) -> String? {

@@ -24,7 +24,7 @@ There are of course some connivance methods that make working with strings conta
 fractionFormatter.double(from: "1 ½") // 1.5
 fractionFormatter.double(from: "1 1/2") // 1.5
 fractionFormatter.string(from: "1 1/2") // "1 ½"
-fractionFormatter.string(from: "1 ½", as .Shilling) // 1 1/2
+fractionFormatter.string(from: "1 ½", as: .Shilling) // 1 1/2
 ```
 
 ## Filing feature requests and issues
