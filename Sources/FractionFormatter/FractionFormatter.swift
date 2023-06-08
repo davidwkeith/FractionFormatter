@@ -1,15 +1,11 @@
 //
 //  FractionFormatter.swift
 //
-//  Created by David W. Keith on 14/Sept/20.
-//  Copyright © 2020 dwk. All rights reserved.
+//  Copyright © 2023 David W. Keith All rights reserved.
 //
 
 import Foundation
 
-/**
- Formats numbers as fractions.
-*/
 public class FractionFormatter: NumberFormatter {
     
     /**
@@ -279,9 +275,9 @@ public class FractionFormatter: NumberFormatter {
     }
     
     /**
-     Generate a unicode string with ``Special`` fractions from a string of numbers with valid fractional parts.
+     Generate a unicode string with "Special" fractions from a string of numbers with valid fractional parts.
 
-     Assumes the string is number-like. e.g. "1 1/2" would return "1½"
+     Assumes the string is number-like. For example "1 1/2" would return "1½"
 
      - Parameter string
      - Returns string
@@ -294,7 +290,7 @@ public class FractionFormatter: NumberFormatter {
     /**
      Generate a unicode string with the specificed fraction format from a string of numbers with valid fractional parts.
      
-     Assumes the string is number-like. e.g. "1 1/2" would return "1½"
+     Assumes the string is number-like. For example, "1 1/2" would return "1½"
      */
     public func string(from str: String, as fractionType: FractionType) -> String? {
         switch fractionType {
@@ -306,7 +302,7 @@ public class FractionFormatter: NumberFormatter {
     }
 
     /**
-     Generate a unicode string with the specificed fraction format from a ``NSNumber``.
+     Generate a unicode string with the specificed fraction format from a `NSNumber`.
      */
     public func string(from number: NSNumber, as fractionType: FractionType) -> String? {
         switch fractionType {
