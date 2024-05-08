@@ -7,7 +7,7 @@
 import Foundation
 /**
  # FractionFormatter
- A formatter that converts between numeric values and their reduced fractional textual representations.
+ A subclass of Apple's [`NumberFormatter`](https://developer.apple.com/documentation/foundation/numberformatter) that outputs pretty-printed Unicode fractions rather than decimals.
 
  ## Overview
  Instances of `FractionFormatter` format the textual representation of cells that contain `NSNumber` objects and convert textual representations of numeric values into `NSNumber` objects. The representation encompasses integers, floats, and doubles; floats and doubles can be formatted to a specified fractional type. Fractions are always output in their reduced form.
@@ -208,7 +208,7 @@ public class FractionFormatter: NumberFormatter {
     }
 
     /**
-     Normalize string as a `.Shilling` fraction.
+     Normalize `String` as a `.Shilling` fraction.
 
      eg "1¹²³⁄₁₀₀₀" becomes "1 123/1000"
      */
@@ -229,7 +229,7 @@ public class FractionFormatter: NumberFormatter {
     }
 
     /**
-     Creates a double from a string with valid fractions.
+     Creates a `double` from a fraction-like `String`.
 
      ```swift
          fractionFormatter.double(from: "1 1/2") // 1.5
@@ -290,7 +290,7 @@ public class FractionFormatter: NumberFormatter {
     }
 
     /**
-     Format a string using Unicode number parts from another fraction-like string.
+     Format a `String` using Unicode number parts from a fraction-like `String`.
 
      ```swift
          fractionFormatter.string(from: "1 1/2") // "1½"
@@ -303,7 +303,7 @@ public class FractionFormatter: NumberFormatter {
     }
 
     /**
-     Fomat a string from a number string with the specificed fraction format.
+     Fomat a `String` from a fraction-like `String` with the specificed fraction format.
 
      ```swift
          fractionFormatter.string(from: "1.5", as: .Special) // "1½"
@@ -321,11 +321,11 @@ public class FractionFormatter: NumberFormatter {
     }
 
     /**
-     Format a unicode string with the specificed fraction format from a `NSNumber`.
+     Format a `String`` with the specificed fraction format from a `NSNumber`.
 
      ```swift
-         fractionFormatter.string(from: 1.5, as: .Special) // "1½"
-         fractionFormatter.string(from: 1.5, as: .Shilling) // "1 1/2"
+         fractionFormatter.string(from: NSNumber(value: 1.5), as: .Special) // "1½"
+         fractionFormatter.string(from: NSNumber(value: 1.5), as: .Shilling) // "1 1/2"
      ```
      */
     public func string(from number: NSNumber, as fractionType: FractionType) -> String? {
@@ -338,10 +338,10 @@ public class FractionFormatter: NumberFormatter {
     }
 
     /**
-     Format a unicode string with `.Special` fractions from a `NSNumber`.
+     Format a fraction `String` using Unicode number parts from a `NSNumber`.
 
      ```swift
-         fractionFormatter.string(from: 1.5) // "1½"
+         fractionFormatter.string(from: NSNumber(value: 1.5)) // "1½"
      ```
      */
     public override func string(from number: NSNumber) -> String? {

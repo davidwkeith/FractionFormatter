@@ -2,7 +2,7 @@
 
 [![![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Fdavidwkeith%2FFractionFormatter%2Fbadge%3Ftype%3Dswift-versions)](https://swiftpackageindex.com/davidwkeith/FractionFormatter) [![![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Fdavidwkeith%2FFractionFormatter%2Fbadge%3Ftype%3Dswift-versions)](https://swiftpackageindex.com/davidwkeith/FractionFormatter)
 
-A subclass of Apple's [`NumberFormatter`](https://developer.apple.com/documentation/foundation/numberformatter) that outputs pretty printed Unicode fractions rather than decimals.
+A subclass of Apple's [`NumberFormatter`](https://developer.apple.com/documentation/foundation/numberformatter) that outputs pretty-printed Unicode fractions rather than decimals.
 
 ## Adding FractionFormatter to your project
 
