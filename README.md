@@ -1,6 +1,6 @@
 # FractionFormatter
 
-[![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Fdavidwkeith%2FFractionFormatter%2Fbadge%3Ftype%3Dswift-versions)](https://swiftpackageindex.com/davidwkeith/FractionFormatter) [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Fdavidwkeith%2FFractionFormatter%2Fbadge%3Ftype%3Dplatforms)](https://swiftpackageindex.com/davidwkeith/FractionFormatter)
+[![![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Fdavidwkeith%2FFractionFormatter%2Fbadge%3Ftype%3Dswift-versions)](https://swiftpackageindex.com/davidwkeith/FractionFormatter) [![![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Fdavidwkeith%2FFractionFormatter%2Fbadge%3Ftype%3Dswift-versions)](https://swiftpackageindex.com/davidwkeith/FractionFormatter)
 
 A subclass of Apple's [`NumberFormatter`](https://developer.apple.com/documentation/foundation/numberformatter) that outputs pretty printed Unicode fractions rather than decimals.
 
@@ -29,7 +29,7 @@ fractionFormatter.string(from: "1 ½", as: .Shilling) // 1 1/2
 
 ## Filing feature requests and issues
 
-The source is hosted on GitLab and mirrored on GitHub. If you find an issues or have a feature request, you can file it [here[(https://gitlab.com/davidwkeith/fractionformatter/-/issues/new)]
+The source is hosted on GitLab and mirrored on GitHub. If you find an issues or have a feature request, you can file it [here](https://gitlab.com/davidwkeith/fractionformatter/-/issues/new).
 
 ## Known Issues
 
