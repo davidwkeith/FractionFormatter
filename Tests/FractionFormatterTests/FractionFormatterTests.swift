@@ -50,14 +50,14 @@ final class FractionFormatterTests: XCTestCase {
         }
     }
 
-    func testStringShilling() {
+    func testStringBuiltUp() {
         let fractionExamples = [
             "1¹²³⁄₁₀₀₀": "1 123/1000",
             "¹²³⁄₁₀₀₀": "123/1000",
             "¹²³⁄₋₁₀₀₀": "123/-1000",
         ]
         for (unicode, ascii) in fractionExamples {
-            XCTAssertEqual(fractionFormatter.string(from: unicode, as: .Shilling), ascii)
+            XCTAssertEqual(fractionFormatter.string(from: unicode, as: .BuiltUp), ascii)
         }
     }
 
@@ -125,7 +125,7 @@ final class FractionFormatterTests: XCTestCase {
     static var allTests = [
         ("testScripted", testScripted),
         ("testRemoveFormatting", testRemoveFormatting),
-        ("testStringShilling", testStringShilling),
+        ("testStringBuiltUp", testStringBuiltUp),
         ("testParseVulgarFraction", testParseVulgarFraction),
         ("testVulgarFractions", testVulgarFractions),
         ("testCustomUnicodeFractions", testCustomUnicodeFractions),
