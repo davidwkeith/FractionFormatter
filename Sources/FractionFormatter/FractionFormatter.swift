@@ -71,21 +71,27 @@ public class FractionFormatter: NumberFormatter {
     ]
 
     /**
-     A shilling fraction uses the solidus character `/` to seperate the numirator from the denominator. This creates an ASCII representation of the fraction. Special fractions use Unicode [Number Forms](https://en.wikipedia.org/wiki/Number_Forms) to format the fractional parts.
+        A fraction can be output using either `.Unicode` or `.BuiltUp` formatting.
+     
+        Unicode fractions use Unicode [Number Forms](https://en.wikipedia.org/wiki/Number_Forms) to format the
+        fractional parts with a fraction slash `⁄` for seperation.
+
+        Built up fractions use ASCII numbers to format the fractional parts with a solidus character `/` for seperation.
      */
     public enum FractionType {
-        //      case Case
-        //      case BuiltUp
 
-        /// Use ASCII slash character and numbers to produce fractions like "1/2"
-        case Shilling
+        /// Use Unicode number parts to output case fractions like "½"
+        case Unicode
 
-        /// Use Unicode number parts to produce fractions like "½"
-        case Special
+        /// Use slash and numbers to output built up fractions like "1/2"
+        case BuiltUp
+
+        // A fraction where the numerator and denominator are seperated by a fraction bar, with one on top of the other.
+        // case Stack
     }
 
     /**
-     A union of our superscript, subscript, and the fraction slash characters
+        A union of our superscript, subscript, and the fraction slash characters
      */
     var formattedFractionCharacterSet: CharacterSet {
         var characterSet = CharacterSet.init(charactersIn:Array(FractionFormatter.unicodeSuperscript.values).joined())
@@ -95,7 +101,7 @@ public class FractionFormatter: NumberFormatter {
     }
 
     /**
-     The set of all characters that we can parse, if a string contains characters not in this set, we can't parse it for sure.
+        The set of all characters that we can parse, if a string contains characters not in this set, we can't parse it for sure.
      */
     var fractionCharacterSet: CharacterSet {
         var characterSet = CharacterSet.init(charactersIn: Array(FractionFormatter.vulgarFractions.values).joined())
@@ -107,13 +113,13 @@ public class FractionFormatter: NumberFormatter {
     }
 
     /**
-     Convience, these can be hard to tell apart in complex strings
+        Convience, these can be hard to tell apart in complex strings
      */
     private let slash: Character = "/"
     private let fractionSlash: Character = "⁄"
 
     /**
-     Given a pair of Doubles, return the greatest common denominator between them.
+        Given a pair of Doubles, return the greatest common denominator between them.
      */
     internal func greatestCommonDenominator(x: Double, y: Double) -> Double {
         if y < 0.0000001 {
@@ -126,7 +132,7 @@ public class FractionFormatter: NumberFormatter {
     }
 
     /**
-     Generic conversion of normal number strings to super- or sub-scripted unicode strings
+        Generic conversion of normal number strings to super- or sub-scripted unicode strings
      */
     internal func scripted(_ num: Int, scriptChars: [String: String]) -> String? {
         var ret: String = ""
@@ -137,21 +143,21 @@ public class FractionFormatter: NumberFormatter {
     }
 
     /**
-    Return the specified Int as a superscripted String
+        Return the specified Int as a superscripted String
      */
     private func superscrpt(_ num: Int) -> String? {
         return scripted(num, scriptChars: FractionFormatter.unicodeSuperscript)
     }
 
     /**
-     Return the specified Int as a subscripted String
+        Return the specified Int as a subscripted String
      */
     private func subscrpt(_ num: Int) -> String? {
         return scripted(num, scriptChars: FractionFormatter.unicodeSubscript)
     }
 
     /**
-    Convert from super/subscript representation to normal ASCII for the digit
+        Convert from super/subscript representation to normal ASCII for the digits.
      */
     internal func removeFormatting(_ scriptedNum: Character) -> Character? {
         for (digit, sup) in FractionFormatter.unicodeSuperscript {
@@ -168,7 +174,7 @@ public class FractionFormatter: NumberFormatter {
     }
 
     /**
-     Converts the `Special` fraction into an integer and a `.Shilling` fraction/
+     Converts a `.Unicode` fraction into an integer and a `.BuiltUp` fraction.
 
      eg "1¹²³⁄₁₀₀₀" becomes ("1", "123/1000")
      */
@@ -188,7 +194,7 @@ public class FractionFormatter: NumberFormatter {
     }
 
     /**
-     Attempt to parse the string as a vulgar fraction, otherwise return nil
+        Attempt to parse the string as a vulgar fraction, otherwise return nil
      */
     internal func parseVulgarFraction(_ string: String) -> Double? {
         for (decimal, fraction) in FractionFormatter.vulgarFractions {
@@ -208,11 +214,11 @@ public class FractionFormatter: NumberFormatter {
     }
 
     /**
-     Normalize `String` as a `.Shilling` fraction.
+        Normalize a `String` as a `.BuiltUp` fraction.
 
-     eg "1¹²³⁄₁₀₀₀" becomes "1 123/1000"
+        e.g. "1¹²³⁄₁₀₀₀" becomes "1 123/1000"
      */
-    private func shilling(from string: String) -> String? {
+    private func builtUp(from string: String) -> String? {
         var integer = ""
         var fraction = ""
         for char in string {
@@ -250,9 +256,9 @@ public class FractionFormatter: NumberFormatter {
             return parsed
         }
 
-        // standardize as Shilling fraction
+        // standardize as Built Up fraction
         if string.contains(fractionSlash) {
-            let ascii = shilling(from: string)
+            let ascii = builtUp(from: string)
             if ascii == nil {
                 return nil
             }
@@ -290,12 +296,12 @@ public class FractionFormatter: NumberFormatter {
     }
 
     /**
-     Format a `String` using Unicode number parts from a fraction-like `String`.
+        Format a `String` using Unicode number parts from a fraction-like `String`.
 
-     ```swift
-         fractionFormatter.string(from: "1 1/2") // "1½"
-         fractionFormatter.string(from: "1½") // "1½"
-     ```
+        ```swift
+        fractionFormatter.string(from: "1 1/2") // "1½"
+        fractionFormatter.string(from: "1½") // "1½"
+        ```
      */
     public func string(from string: String) -> String? {
         let decimal = self.double(from: string)
@@ -303,46 +309,46 @@ public class FractionFormatter: NumberFormatter {
     }
 
     /**
-     Fomat a `String` from a fraction-like `String` with the specificed fraction format.
+        Fomat a `String` from a fraction-like `String` with the specificed fraction format.
 
-     ```swift
-         fractionFormatter.string(from: "1.5", as: .Special) // "1½"
-         fractionFormatter.string(from: "1 1/2", as: .Special) // "1½"
-         fractionFormatter.string(from: "1½", as: .Shilling) // "1 1/2"
-     ```
+        ```swift
+        fractionFormatter.string(from: "1.5", as: .Unicode) // "1½"
+        fractionFormatter.string(from: "1 1/2", as: .Unicode) // "1½"
+        fractionFormatter.string(from: "1½", as: .BuiltUp) // "1 1/2"
+        ```
      */
     public func string(from str: String, as fractionType: FractionType) -> String? {
         switch fractionType {
-            case .Special:
+            case .Unicode:
                 return string(from: str)
-            case .Shilling:
-                return shilling(from: str)
+            case .BuiltUp:
+                return builtUp(from: str)
         }
     }
 
     /**
-     Format a `String`` with the specificed fraction format from a `NSNumber`.
+        Format a `String` with the specificed fraction format from a `NSNumber`.
 
-     ```swift
-         fractionFormatter.string(from: NSNumber(value: 1.5), as: .Special) // "1½"
-         fractionFormatter.string(from: NSNumber(value: 1.5), as: .Shilling) // "1 1/2"
-     ```
+        ```swift
+        fractionFormatter.string(from: NSNumber(value: 1.5), as: .Unicode) // "1½"
+        fractionFormatter.string(from: NSNumber(value: 1.5), as: .BuiltUp) // "1 1/2"
+        ```
      */
     public func string(from number: NSNumber, as fractionType: FractionType) -> String? {
         switch fractionType {
-            case .Special:
+            case .Unicode:
                 return string(from: number)
-            case .Shilling:
-                return shilling(from: string(from: number) ?? "")
+            case .BuiltUp:
+                return builtUp(from: string(from: number) ?? "")
         }
     }
 
     /**
-     Format a fraction `String` using Unicode number parts from a `NSNumber`.
+        Format a `String` using Unicode number parts from a `NSNumber`.
 
-     ```swift
-         fractionFormatter.string(from: NSNumber(value: 1.5)) // "1½"
-     ```
+        ```swift
+        fractionFormatter.string(from: NSNumber(value: 1.5)) // "1½"
+         ```
      */
     public override func string(from number: NSNumber) -> String? {
         let wholeUnits = Int(floor(Double(truncating: number)))
