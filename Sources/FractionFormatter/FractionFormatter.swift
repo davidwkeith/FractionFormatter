@@ -13,7 +13,7 @@ import Foundation
  Instances of `FractionFormatter` format the textual representation of cells that contain `NSNumber` objects and convert textual representations of numeric values into `NSNumber` objects. The representation encompasses integers, floats, and doubles; floats and doubles can be formatted to a specified fractional type. Fractions are always output in their reduced form.
 
  */
-public class FractionFormatter: NumberFormatter {
+public class FractionFormatter: NumberFormatter, @unchecked Sendable {
 
     /**
      Allows us to use vulgar Unicode fractions glyphs when availible in Unicode.
