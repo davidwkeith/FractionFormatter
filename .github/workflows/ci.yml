@@ -8,17 +8,12 @@ on:
 
 jobs:
   test-linux:
-    name: Test (ubuntu, Swift ${{ matrix.swift }})
+    name: Test (ubuntu, Swift container)
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        swift: ['5.9', '5.10']
+    container:
+      image: swift:5.10
     steps:
       - uses: actions/checkout@v4
-      - uses: swift-actions/setup-swift@v2
-        with:
-          swift-version: ${{ matrix.swift }}
       - run: swift build
       - run: swift test
 
@@ -35,22 +30,20 @@ jobs:
   docs:
     name: Symbol Graph
     runs-on: ubuntu-latest
+    container:
+      image: swift:5.10
     steps:
       - uses: actions/checkout@v4
-      - uses: swift-actions/setup-swift@v2
-        with:
-          swift-version: '5.10'
       - run: swift package dump-symbol-graph
       - run: test -d .build/symbolgraphs
 
   format:
     name: Format Lint
     runs-on: ubuntu-latest
+    container:
+      image: swift:5.10
     steps:
       - uses: actions/checkout@v4
-      - uses: swift-actions/setup-swift@v2
-        with:
-          swift-version: '5.10'
       - run: |
           if command -v swift-format >/dev/null 2>&1; then
             swift-format lint -r Sources Tests
