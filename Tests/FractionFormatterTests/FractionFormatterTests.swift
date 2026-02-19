@@ -121,6 +121,44 @@ final class FractionFormatterTests: XCTestCase {
             XCTAssertEqual(fractionFormatter.string(from: fraction), nil)
         }
     }
+
+    func testInvalidBuiltUpFractions() {
+        let invalidFractions = [
+            "1/",
+            "/2",
+            "/",
+            "1//2",
+            "1/0",
+            "0/0",
+        ]
+        for fraction in invalidFractions {
+            XCTAssertNil(fractionFormatter.double(from: fraction))
+            XCTAssertNil(fractionFormatter.string(from: fraction))
+        }
+    }
+
+    func testNegativeMixedFractionParsing() {
+        let fractionExamples = [
+            "-1 1/2": -1.5,
+            "-1½": -1.5,
+            "-½": -0.5,
+        ]
+        for (fraction, expectedDecimal) in fractionExamples {
+            XCTAssertEqual(fractionFormatter.double(from: fraction), expectedDecimal)
+        }
+    }
+
+    func testNegativeAndZeroFormatting() {
+        let fractionExamples = [
+            -2.875: "-2⅞",
+            -1.5: "-1½",
+            -0.5: "-½",
+            0.0: "0",
+        ]
+        for (decimal, fraction) in fractionExamples {
+            XCTAssertEqual(fractionFormatter.string(from: NSNumber(value: decimal)), fraction)
+        }
+    }
     
     static var allTests = [
         ("testScripted", testScripted),
@@ -131,5 +169,8 @@ final class FractionFormatterTests: XCTestCase {
         ("testCustomUnicodeFractions", testCustomUnicodeFractions),
         ("testComplexVulgarFractions", testComplexVulgarFractions),
         ("testExpectedNils", testExpectedNils),
+        ("testInvalidBuiltUpFractions", testInvalidBuiltUpFractions),
+        ("testNegativeMixedFractionParsing", testNegativeMixedFractionParsing),
+        ("testNegativeAndZeroFormatting", testNegativeAndZeroFormatting),
     ]
 }

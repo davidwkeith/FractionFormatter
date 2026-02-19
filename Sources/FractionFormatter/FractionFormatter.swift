@@ -11,6 +11,7 @@ import Foundation
 
  ## Overview
  Instances of `FractionFormatter` format the textual representation of cells that contain `NSNumber` objects and convert textual representations of numeric values into `NSNumber` objects. The representation encompasses integers, floats, and doubles; floats and doubles can be formatted to a specified fractional type. Fractions are always output in their reduced form.
+ Like `NumberFormatter`, instances are not thread-safe and should be confined to a single thread/queue.
 
  */
 public class FractionFormatter: NumberFormatter, @unchecked Sendable {
@@ -95,7 +96,7 @@ public class FractionFormatter: NumberFormatter, @unchecked Sendable {
      */
     var formattedFractionCharacterSet: CharacterSet {
         var characterSet = CharacterSet.init(charactersIn:Array(FractionFormatter.unicodeSuperscript.values).joined())
-        characterSet.insert(charactersIn: Array(FractionFormatter.unicodeSuperscript.values).joined())
+        characterSet.insert(charactersIn: Array(FractionFormatter.unicodeSubscript.values).joined())
         characterSet.insert(charactersIn: String(fractionSlash))
         return characterSet
     }
@@ -197,15 +198,27 @@ public class FractionFormatter: NumberFormatter, @unchecked Sendable {
         Attempt to parse the string as a vulgar fraction, otherwise return nil
      */
     internal func parseVulgarFraction(_ string: String) -> Double? {
+        let trimmed = string.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
         for (decimal, fraction) in FractionFormatter.vulgarFractions {
-            if string == fraction {
+            if trimmed == fraction {
                 return decimal
             }
-            if string.contains(fraction) {
-                if let integerPart = number(from: string
-                                                .replacingOccurrences(of: fraction, with: "")
-                                                .trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)) {
-                    return Double(truncating: integerPart) + decimal
+            if trimmed == "-\(fraction)" {
+                return -decimal
+            }
+            if trimmed.contains(fraction) {
+                let remainder = trimmed
+                    .replacingOccurrences(of: fraction, with: "")
+                    .trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
+                if remainder == "-" {
+                    return -decimal
+                }
+                if let integerPart = number(from: remainder) {
+                    let integerValue = Double(truncating: integerPart)
+                    if integerValue < 0 || remainder.hasPrefix("-") {
+                        return integerValue - decimal
+                    }
+                    return integerValue + decimal
                 }
                 return nil
             }
@@ -242,7 +255,10 @@ public class FractionFormatter: NumberFormatter, @unchecked Sendable {
      ```
      */
     public func double(from input: String) -> Double? {
-        var string = input
+        var string = input.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
+        if string.isEmpty {
+            return nil
+        }
 
         // Check if decimal
         let nsNumber = number(from: string)
@@ -277,13 +293,24 @@ public class FractionFormatter: NumberFormatter, @unchecked Sendable {
         }
         for part in parts {
             if part.contains(slash) {
-                let subParts = part.split(separator: "/")
-                let numerator = Double(subParts[0])
-                let denominator = Double(subParts[1])
-                if (numerator == nil || denominator == nil) {
+                let subParts = part.split(separator: "/", omittingEmptySubsequences: false)
+                if subParts.count != 2 {
                     return nil
                 }
-                quantity += numerator!/denominator!
+                let numerator = Double(subParts[0])
+                let denominator = Double(subParts[1])
+                if (numerator == nil || denominator == nil || denominator == 0) {
+                    return nil
+                }
+                let fraction = numerator!/denominator!
+                if !fraction.isFinite {
+                    return nil
+                }
+                if parts.count == 2 && parts.first?.hasPrefix("-") == true && !part.hasPrefix("-") {
+                    quantity -= fraction
+                } else {
+                    quantity += fraction
+                }
             } else {
                 let integerPart = Double(part)
                 if integerPart == nil {
@@ -351,17 +378,21 @@ public class FractionFormatter: NumberFormatter, @unchecked Sendable {
          ```
      */
     public override func string(from number: NSNumber) -> String? {
-        let wholeUnits = Int(floor(Double(truncating: number)))
-        let fractionalPart = Double(truncating: number) - Double(wholeUnits)
+        let value = Double(truncating: number)
+        if !value.isFinite {
+            return nil
+        }
+        let isNegative = value < 0
+        let absoluteValue = abs(value)
+        let wholeUnits = Int(floor(absoluteValue))
+        let fractionalPart = absoluteValue - Double(wholeUnits)
         let denominator = Double(truncating:pow(10.0, String(fractionalPart).count) as NSNumber)
         let numerator = fractionalPart * denominator
         let divisor = greatestCommonDenominator(x: numerator, y: denominator)
         let numeratorInt = Int(floor(numerator/divisor))
         let denominatorInt = Int(floor(denominator/divisor))
-        var ret = ""
-        if wholeUnits > 0 {
-            ret += NumberFormatter().string(from: NSNumber(value: wholeUnits))!
-        }
+        let wholeString = NumberFormatter().string(from: NSNumber(value: wholeUnits)) ?? String(wholeUnits)
+        var ret = wholeUnits > 0 ? wholeString : ""
         if numeratorInt > 0 {
             let sup = superscrpt(numeratorInt)
             let sub = subscrpt(denominatorInt)
@@ -370,6 +401,9 @@ public class FractionFormatter: NumberFormatter, @unchecked Sendable {
             }
             ret += FractionFormatter.vulgarFractions[fractionalPart] ?? [sup!, String(fractionSlash), sub!].joined()
         }
-        return ret
+        if ret.isEmpty {
+            return NumberFormatter().string(from: 0) ?? "0"
+        }
+        return isNegative ? "-\(ret)" : ret
     }
 }

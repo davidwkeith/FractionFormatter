@@ -5,37 +5,96 @@
 
 A subclass of Apple's [`NumberFormatter`](https://developer.apple.com/documentation/foundation/numberformatter) that outputs pretty-printed Unicode fractions rather than decimals.
 
-## Adding FractionFormatter to your project
+## Requirements
 
-In Xcode, use the `File:Swift Packages:Add Package Dependency…` menu command and enter `https://gitlab.com/davidwkeith/fractionformatter.git`
+- Swift 5+
+- iOS 8+
+- macOS 10.13+
+- tvOS 9+
+- watchOS 5+
+
+## Installation
+
+### Xcode
+
+In Xcode, use `File > Add Package Dependencies...` and enter:
+
+`https://gitlab.com/davidwkeith/fractionformatter.git`
+
+### Swift Package Manager
+
+Add `FractionFormatter` to your `Package.swift` dependencies:
+
+```swift
+.package(url: "https://gitlab.com/davidwkeith/fractionformatter.git", from: "1.0.0")
+```
+
+Then add it to your target dependencies:
+
+```swift
+.target(
+    name: "YourTarget",
+    dependencies: ["FractionFormatter"]
+)
+```
 
 ## Usage
 
-`FractionFormatter` is a direct replacement for `NumberFormatter` and is used the same way:
+`FractionFormatter` is a direct replacement for `NumberFormatter`:
 
 ```swift
 let fractionFormatter = FractionFormatter()
-fractionFormatter.string(from: NSNumber(value: 0.5)) // "½"
+
+fractionFormatter.string(from: NSNumber(value: 0.5))   // "½"
 fractionFormatter.string(from: NSNumber(value: 0.123)) // "¹²³⁄₁₀₀₀"
 ```
 
-There are of course some connivance methods that make working with strings containing fractions easier:
+It can also parse and normalize fraction-like strings:
 
 ```swift
-fractionFormatter.double(from: "1 ½") // 1.5
-fractionFormatter.double(from: "1 1/2") // 1.5
-fractionFormatter.string(from: "1 1/2") // "1 ½"
-fractionFormatter.string(from: "1 ½", as: .BuiltUp) // 1 1/2
+fractionFormatter.double(from: "1½")                  // 1.5
+fractionFormatter.double(from: "1 1/2")               // 1.5
+fractionFormatter.string(from: "1 1/2")               // "1½"
+fractionFormatter.string(from: "1½", as: .BuiltUp)   // "1 1/2"
 ```
 
-## Filing feature requests and issues
+## Fraction Output Styles
 
-The source is hosted on GitLab and mirrored on GitHub. If you find an issues or have a feature request, you can file it [here](https://gitlab.com/davidwkeith/fractionformatter/-/issues/new).
+`FractionFormatter.FractionType` supports:
+
+- `.Unicode` for Unicode output (for example, `"1½"` or `"¹²³⁄₁₀₀₀"`)
+- `.BuiltUp` for slash-separated output (for example, `"1 1/2"`)
+
+## Filing Feature Requests and Issues
+
+The source is hosted on GitLab and mirrored on GitHub. If you find an issue or have a feature request, file it [here](https://gitlab.com/davidwkeith/fractionformatter/-/issues/new).
 
 ## Known Issues
 
-### Radar FB7644708 - Pluralization and number formatting
+### Radar FB7644708 - Pluralization and Number Formatting
 
-When combined with Apple's MeasurementFormatter there are issues with pluralization. For example, using `NumberFormatter` to format fractional feet, it will output "0.5 feet", read as "zero point five feet", but if you substitute `FractionFormatter` then the output is "½ feet", which is not how it is normally written in English. Normally we say "half a foot", or more formally "one half of a foot" and thus write the singular form.
+When combined with Apple's `MeasurementFormatter`, there are issues with pluralization. For example, using `NumberFormatter` to format fractional feet outputs `"0.5 feet"` ("zero point five feet"). Replacing it with `FractionFormatter` can produce `"½ feet"`, which is not the standard English form. Normally we say "half a foot" (or "one half of a foot"), so singular wording is preferred.
 
-The workaround it to pull the symbol from the measurement and substitute the pluralized symbol when the measurement is between -1 and 1.
+As of February 19, 2026 there is no public API on `MeasurementFormatter` to force singular unit words for fractional values while keeping full localized unit inflection.
+
+#### Workarounds
+
+1. Prefer `.short`/`.medium` unit styles (`ft`, `kg`, etc.) where singular/plural words are not shown.
+2. For values where `abs(value) < 1`, use a custom localized phrase (`"half a foot"`, `"one half of a foot"`, etc.) from your app localization resources.
+3. If you only need an English-style output path, post-process the unit word for that range.
+
+Example (option 3):
+
+```swift
+import Foundation
+
+func formatLength(_ value: Double, formatter: MeasurementFormatter) -> String {
+    let measurement = Measurement(value: value, unit: UnitLength.feet)
+    let formatted = formatter.string(from: measurement)
+
+    guard abs(value) < 1 else { return formatted }
+
+    // English-specific fallback for FB7644708.
+    return formatted.replacingOccurrences(of: " feet", with: " foot")
+}
+```
