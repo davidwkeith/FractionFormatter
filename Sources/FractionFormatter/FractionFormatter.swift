@@ -15,6 +15,22 @@ import Foundation
 
  */
 public class FractionFormatter: NumberFormatter, @unchecked Sendable {
+    /**
+        Parse a numeric string strictly, rejecting partial parses like "1/" -> 1.
+     */
+    private func strictNumber(from input: String) -> Double? {
+        let trimmed = input.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
+        guard !trimmed.isEmpty else {
+            return nil
+        }
+
+        let pattern = #"^[+-]?((\d+(\.\d+)?)|(\.\d+))$"#
+        guard trimmed.range(of: pattern, options: .regularExpression) != nil else {
+            return nil
+        }
+
+        return Double(trimmed)
+    }
 
     /**
      Allows us to use vulgar Unicode fractions glyphs when availible in Unicode.
@@ -213,8 +229,7 @@ public class FractionFormatter: NumberFormatter, @unchecked Sendable {
                 if remainder == "-" {
                     return -decimal
                 }
-                if let integerPart = number(from: remainder) {
-                    let integerValue = Double(truncating: integerPart)
+                if let integerValue = strictNumber(from: remainder) {
                     if integerValue < 0 || remainder.hasPrefix("-") {
                         return integerValue - decimal
                     }
@@ -261,9 +276,8 @@ public class FractionFormatter: NumberFormatter, @unchecked Sendable {
         }
 
         // Check if decimal
-        let nsNumber = number(from: string)
-        if nsNumber != nil {
-            return Double(truncating: nsNumber!)
+        if let strict = strictNumber(from: string) {
+            return strict
         }
 
         // Check if vulgar fraction
