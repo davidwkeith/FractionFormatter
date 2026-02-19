@@ -20,7 +20,7 @@ formatter.double(from: "0.125")   // 0.125
 
 ```swift
 formatter.string(from: NSNumber(value: 1.5))                 // "1½"
-formatter.string(from: NSNumber(value: 1.5), as: .BuiltUp)   // "1 1/2"
+formatter.string(from: NSNumber(value: 1.5), as: .builtUp)   // "1 1/2"
 ```
 
 ## Configure reduction policy
@@ -29,7 +29,7 @@ Use ``FractionFormatter/ReductionPolicy/maxDenominator(_:)`` for practical denom
 
 ```swift
 formatter.reductionPolicy = .maxDenominator(16)
-formatter.string(from: NSNumber(value: 2.2), as: .BuiltUp)   // "2 1/5"
+formatter.string(from: NSNumber(value: 2.2), as: .builtUp)   // "2 1/5"
 ```
 
 ## Configure sign behavior

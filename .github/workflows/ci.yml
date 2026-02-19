@@ -1,0 +1,50 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+    tags: [ '*' ]
+  pull_request:
+
+jobs:
+  test:
+    name: Test (${{ matrix.os }}, Swift ${{ matrix.swift }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        swift: ['5.9', '5.10']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: swift-actions/setup-swift@v2
+        with:
+          swift-version: ${{ matrix.swift }}
+      - run: swift build
+      - run: swift test
+
+  docs:
+    name: Symbol Graph
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: swift-actions/setup-swift@v2
+        with:
+          swift-version: '5.10'
+      - run: swift package dump-symbol-graph
+      - run: test -d .build/symbolgraphs
+
+  format:
+    name: Format Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: swift-actions/setup-swift@v2
+        with:
+          swift-version: '5.10'
+      - run: |
+          if command -v swift-format >/dev/null 2>&1; then
+            swift-format lint -r Sources Tests
+          else
+            echo "swift-format not found in toolchain; skipping.";
+          fi

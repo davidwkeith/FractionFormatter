@@ -55,7 +55,7 @@ It can also parse and normalize fraction-like strings:
 fractionFormatter.double(from: "1½")                  // 1.5
 fractionFormatter.double(from: "1 1/2")               // 1.5
 fractionFormatter.string(from: "1 1/2")               // "1½"
-fractionFormatter.string(from: "1½", as: .BuiltUp)   // "1 1/2"
+fractionFormatter.string(from: "1½", as: .builtUp)   // "1 1/2"
 ```
 
 ## New Configuration Features
@@ -78,7 +78,7 @@ formatter.double(from: "1,5") // 1.5
 
 // 2) Rational reduction control
 formatter.reductionPolicy = .maxDenominator(16)
-formatter.string(from: NSNumber(value: 2.2), as: .BuiltUp) // "2 1/5"
+formatter.string(from: NSNumber(value: 2.2), as: .builtUp) // "2 1/5"
 
 // 3) Negative display style
 formatter.negativeFormatStyle = .parenthesized
@@ -100,12 +100,22 @@ formatter.double(from: "⯪") // 0.5
 
 `FractionFormatter.FractionType` supports:
 
-- `.Unicode` for Unicode output (for example, `"1½"` or `"¹²³⁄₁₀₀₀"`)
-- `.BuiltUp` for slash-separated output (for example, `"1 1/2"`)
+- `.unicode` for Unicode output (for example, `"1½"` or `"¹²³⁄₁₀₀₀"`)
+- `.builtUp` for slash-separated output (for example, `"1 1/2"`)
 
 ## Filing Feature Requests and Issues
 
 The source is hosted on GitLab and mirrored on GitHub. If you find an issue or have a feature request, file it [here](https://gitlab.com/davidwkeith/fractionformatter/-/issues/new).
+
+## Project Quality
+
+- Changelog: `CHANGELOG.md`
+- Release process: `RELEASE_CHECKLIST.md`
+- Contributor guide: `CONTRIBUTING.md`
+- Swift formatting config: `.swift-format`
+- CI:
+  - GitLab CI (`.gitlab-ci.yml`) runs lint/test/docs checks
+  - GitHub Actions (`.github/workflows/ci.yml`) runs Linux + macOS test matrix
 
 ## Known Issues
 

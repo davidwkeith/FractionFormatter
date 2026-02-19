@@ -100,9 +100,15 @@ public class FractionFormatter: NumberFormatter, @unchecked Sendable {
     ]
 
     /**
-        A fraction can be output using either `.Unicode` or `.BuiltUp` formatting.
+        A fraction can be output using either `.unicode` or `.builtUp` formatting.
      */
     public enum FractionType {
+        /// Preferred lower-camel alias for ``FractionType/Unicode``.
+        public static var unicode: FractionType { .Unicode }
+
+        /// Preferred lower-camel alias for ``FractionType/BuiltUp``.
+        public static var builtUp: FractionType { .BuiltUp }
+
         case Unicode
         case BuiltUp
     }
@@ -197,13 +203,25 @@ public class FractionFormatter: NumberFormatter, @unchecked Sendable {
     }
 
     /// Converts an integer to its Unicode superscript representation.
-    private func superscrpt(_ num: Int) -> String? {
+    private func superscript(_ num: Int) -> String? {
         scripted(num, scriptChars: FractionFormatter.unicodeSuperscript)
     }
 
     /// Converts an integer to its Unicode subscript representation.
-    private func subscrpt(_ num: Int) -> String? {
+    private func subscripted(_ num: Int) -> String? {
         scripted(num, scriptChars: FractionFormatter.unicodeSubscript)
+    }
+
+    /// Backwards-compatible misspelling kept for source compatibility.
+    @available(*, deprecated, renamed: "superscript")
+    private func superscrpt(_ num: Int) -> String? {
+        superscript(num)
+    }
+
+    /// Backwards-compatible misspelling kept for source compatibility.
+    @available(*, deprecated, renamed: "subscripted")
+    private func subscrpt(_ num: Int) -> String? {
+        subscripted(num)
     }
 
     /// Converts a superscript/subscript digit character back to its plain digit.
@@ -347,7 +365,7 @@ public class FractionFormatter: NumberFormatter, @unchecked Sendable {
                 }
                 switch unicodeFormattingStyle {
                 case .superscriptSubscript:
-                    guard let sup = superscrpt(numerator), let sub = subscrpt(denominator) else {
+                    guard let sup = superscript(numerator), let sub = subscripted(denominator) else {
                         return nil
                     }
                     ret += [sup, unicodeDivisionSeparator, sub].joined()
@@ -382,7 +400,7 @@ public class FractionFormatter: NumberFormatter, @unchecked Sendable {
     // MARK: - Parsing
 
     /**
-     Converts a `.Unicode` fraction into an integer and a `.BuiltUp` fraction.
+     Converts a `.unicode` fraction into an integer and a `.builtUp` fraction.
 
      e.g. `"1¹²³⁄₁₀₀₀"` becomes `( "1", "123/1000" )`
      */
@@ -433,18 +451,18 @@ public class FractionFormatter: NumberFormatter, @unchecked Sendable {
     }
 
     /**
-        Normalize a `String` as a `.BuiltUp` fraction.
+        Normalize a `String` as a `.builtUp` fraction.
 
         e.g. `"1¹²³⁄₁₀₀₀"` becomes `"1 123/1000"`
      */
     private func builtUp(from string: String) -> String? {
         let trimmed = string.trimmingCharacters(in: .whitespacesAndNewlines)
         if let decimal = strictNumber(from: trimmed) {
-            return self.string(from: NSNumber(value: decimal), as: .BuiltUp)
+            return self.string(from: NSNumber(value: decimal), as: .builtUp)
         }
 
         if let decimal = parseVulgarFraction(trimmed) {
-            return self.string(from: NSNumber(value: decimal), as: .BuiltUp)
+            return self.string(from: NSNumber(value: decimal), as: .builtUp)
         }
 
         let hasFormattedUnicodeFractions = trimmed.unicodeScalars.contains(where: { formattedFractionCharacterSet.contains($0) }) ||
@@ -638,6 +656,7 @@ public class FractionFormatter: NumberFormatter, @unchecked Sendable {
 
      Set `preferSingularUnitForProperFractions` to `true` to apply a lightweight FB7644708 workaround.
      */
+    @available(iOS 10.0, tvOS 10.0, watchOS 3.0, macOS 10.12, *)
     public func string<UnitType: Dimension>(
         from measurement: Measurement<UnitType>,
         with measurementFormatter: MeasurementFormatter,

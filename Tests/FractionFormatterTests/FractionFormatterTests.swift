@@ -57,7 +57,7 @@ final class FractionFormatterTests: XCTestCase {
             "¹²³⁄₋₁₀₀₀": "123/-1000",
         ]
         for (unicode, ascii) in fractionExamples {
-            XCTAssertEqual(fractionFormatter.string(from: unicode, as: .BuiltUp), ascii)
+            XCTAssertEqual(fractionFormatter.string(from: unicode, as: .builtUp), ascii)
         }
     }
 
@@ -175,14 +175,14 @@ final class FractionFormatterTests: XCTestCase {
         let formatter = FractionFormatter()
         formatter.reductionPolicy = .maxDenominator(16)
         XCTAssertEqual(formatter.string(from: NSNumber(value: 0.3333)), "⅓")
-        XCTAssertEqual(formatter.string(from: NSNumber(value: 2.2), as: .BuiltUp), "2 1/5")
+        XCTAssertEqual(formatter.string(from: NSNumber(value: 2.2), as: .builtUp), "2 1/5")
     }
 
     func testNegativeFormattingOptions() {
         let formatter = FractionFormatter()
         formatter.negativeFormatStyle = .parenthesized
         XCTAssertEqual(formatter.string(from: NSNumber(value: -1.5)), "(1½)")
-        XCTAssertEqual(formatter.string(from: NSNumber(value: -1.5), as: .BuiltUp), "(1 1/2)")
+        XCTAssertEqual(formatter.string(from: NSNumber(value: -1.5), as: .builtUp), "(1 1/2)")
     }
 
     func testTypographyOptions() {
@@ -223,6 +223,28 @@ final class FractionFormatterTests: XCTestCase {
             XCTAssertTrue(rendered.contains("foot") || rendered.contains("ft") || rendered.contains("′"))
         }
     }
+
+    func testRoundTripFuzz() {
+        let formatter = FractionFormatter()
+        let values: [Double] = stride(from: -5.0, through: 5.0, by: 0.125).map { $0 }
+        for value in values {
+            guard let rendered = formatter.string(from: NSNumber(value: value)),
+                  let parsed = formatter.double(from: rendered) else {
+                XCTFail("Failed round trip for \(value)")
+                continue
+            }
+            XCTAssertEqual(parsed, value, accuracy: 0.000000001)
+        }
+    }
+
+    func testPerformanceFormatting() {
+        let formatter = FractionFormatter()
+        measure {
+            for i in 0...5000 {
+                _ = formatter.string(from: NSNumber(value: Double(i) / 37.0))
+            }
+        }
+    }
     
     static var allTests = [
         ("testScripted", testScripted),
@@ -242,5 +264,7 @@ final class FractionFormatterTests: XCTestCase {
         ("testTypographyOptions", testTypographyOptions),
         ("testCustomVulgarFractions", testCustomVulgarFractions),
         ("testMeasurementHelper", testMeasurementHelper),
+        ("testRoundTripFuzz", testRoundTripFuzz),
+        ("testPerformanceFormatting", testPerformanceFormatting),
     ]
 }

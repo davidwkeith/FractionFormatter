@@ -1,6 +1,7 @@
 stages:
   - lint
   - test
+  - docs
   - release
 
 lint:
@@ -9,6 +10,12 @@ lint:
   script:
     - swift package dump-package > /dev/null
     - swift build
+    - |
+      if command -v swift-format >/dev/null 2>&1; then
+        swift-format lint -r Sources Tests
+      else
+        echo "swift-format not installed in this image; skipping format lint in GitLab."
+      fi
 
 test:
   stage: test
@@ -18,6 +25,13 @@ test:
       - SWIFT_VERSION: ["5.9", "5.10"]
   script:
     - swift test
+
+docs_check:
+  stage: docs
+  image: swift:5.10
+  script:
+    - swift package dump-symbol-graph
+    - test -d .build/symbolgraphs
 
 release_notes:
   stage: release
