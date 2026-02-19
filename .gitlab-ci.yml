@@ -31,7 +31,7 @@ docs_check:
   image: swift:5.10
   script:
     - swift package dump-symbol-graph
-    - test -d .build/symbolgraphs
+    - find .build -type f -name 'FractionFormatter.symbols.json' | grep -q .
 
 release_notes:
   stage: release
