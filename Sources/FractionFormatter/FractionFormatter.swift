@@ -146,11 +146,13 @@ public class FractionFormatter: NumberFormatter, @unchecked Sendable {
     private static let defaultSlash: Character = "/"
     private static let defaultFractionSlash: Character = "⁄"
 
+    /// Creates a formatter with default configuration and default vulgar glyph mappings.
     public override init() {
         self.vulgarFractionGlyphs = FractionFormatter.defaultVulgarFractions
         super.init()
     }
 
+    /// Creates a formatter from an archive/coder with default vulgar glyph mappings.
     required public init?(coder: NSCoder) {
         self.vulgarFractionGlyphs = FractionFormatter.defaultVulgarFractions
         super.init(coder: coder)
@@ -177,6 +179,7 @@ public class FractionFormatter: NumberFormatter, @unchecked Sendable {
 
     // MARK: - Internal Helpers
 
+    /// Computes the greatest common divisor for two positive floating-point values.
     internal func greatestCommonDenominator(x: Double, y: Double) -> Double {
         if y < 0.0000001 {
             return x
@@ -184,6 +187,7 @@ public class FractionFormatter: NumberFormatter, @unchecked Sendable {
         return greatestCommonDenominator(x: y, y: x.truncatingRemainder(dividingBy: y))
     }
 
+    /// Converts an integer into a mapped script form using the supplied character table.
     internal func scripted(_ num: Int, scriptChars: [String: String]) -> String? {
         var ret = ""
         for digit in String(num) {
@@ -192,14 +196,17 @@ public class FractionFormatter: NumberFormatter, @unchecked Sendable {
         return ret.contains("_") ? nil : ret
     }
 
+    /// Converts an integer to its Unicode superscript representation.
     private func superscrpt(_ num: Int) -> String? {
         scripted(num, scriptChars: FractionFormatter.unicodeSuperscript)
     }
 
+    /// Converts an integer to its Unicode subscript representation.
     private func subscrpt(_ num: Int) -> String? {
         scripted(num, scriptChars: FractionFormatter.unicodeSubscript)
     }
 
+    /// Converts a superscript/subscript digit character back to its plain digit.
     internal func removeFormatting(_ scriptedNum: Character) -> Character? {
         for (digit, sup) in FractionFormatter.unicodeSuperscript where sup == String(scriptedNum) {
             return digit.first
@@ -210,10 +217,12 @@ public class FractionFormatter: NumberFormatter, @unchecked Sendable {
         return nil
     }
 
+    /// Returns the locale used for parsing, falling back to formatter locale and then current locale.
     private func activeLocale() -> Locale {
         parsingLocale ?? locale ?? Locale.current
     }
 
+    /// Normalizes locale-specific decimal/group separators into a parseable canonical number string.
     private func normalizeNumberString(_ input: String) -> String {
         var normalized = input.trimmingCharacters(in: .whitespacesAndNewlines)
         guard allowsLocaleAwareParsing else {
@@ -247,6 +256,7 @@ public class FractionFormatter: NumberFormatter, @unchecked Sendable {
         return Double(normalized)
     }
 
+    /// Finds a configured vulgar fraction glyph for a decimal value with tolerance for floating-point precision.
     private func vulgarGlyph(for value: Double) -> String? {
         for (decimal, glyph) in vulgarFractionGlyphs {
             if abs(decimal - value) < 0.000000000001 {
@@ -256,6 +266,7 @@ public class FractionFormatter: NumberFormatter, @unchecked Sendable {
         return nil
     }
 
+    /// Reduces a proper fraction according to the configured reduction policy.
     private func reducedFraction(for fraction: Double) -> (numerator: Int, denominator: Int)? {
         guard fraction >= 0 && fraction < 1 else {
             return nil
@@ -297,6 +308,7 @@ public class FractionFormatter: NumberFormatter, @unchecked Sendable {
         }
     }
 
+    /// Rewrites accepted division separators into the canonical slash used by parsing internals.
     private func normalizeInputDivisionSeparators(_ input: String) -> String {
         var normalized = input
         for separator in acceptedInputDivisionSeparators where separator != FractionFormatter.defaultSlash {
@@ -305,6 +317,7 @@ public class FractionFormatter: NumberFormatter, @unchecked Sendable {
         return normalized
     }
 
+    /// Formats a mixed fraction in built-up form (for example `1 1/2`).
     private func formatBuiltUp(whole: Int, numerator: Int, denominator: Int) -> String {
         var components: [String] = []
         if whole > 0 {
@@ -319,6 +332,7 @@ public class FractionFormatter: NumberFormatter, @unchecked Sendable {
         return components.joined(separator: builtUpWholeFractionSeparator)
     }
 
+    /// Formats a mixed fraction in Unicode form using vulgar glyphs or configured fallback rendering.
     private func formatUnicode(whole: Int, reducedFractionValue: Double, numerator: Int, denominator: Int) -> String? {
         var ret = whole > 0 ? String(whole) : ""
         if numerator > 0 {
@@ -345,6 +359,7 @@ public class FractionFormatter: NumberFormatter, @unchecked Sendable {
         return ret.isEmpty ? "0" : ret
     }
 
+    /// Applies the configured negative-number display style to an already formatted absolute value.
     private func applyNegativeStyle(_ formattedAbsolute: String, isNegative: Bool) -> String {
         guard isNegative else {
             return formattedAbsolute
@@ -357,6 +372,7 @@ public class FractionFormatter: NumberFormatter, @unchecked Sendable {
         }
     }
 
+    /// Splits mixed-number input into whitespace-separated components.
     private func splitMixedParts(_ input: String) -> [String] {
         input
             .split(whereSeparator: { $0.isWhitespace })
@@ -553,6 +569,7 @@ public class FractionFormatter: NumberFormatter, @unchecked Sendable {
 
     // MARK: - Formatting
 
+    /// Parses a fraction-like string and re-formats it in Unicode style.
     public func string(from string: String) -> String? {
         guard let decimal = double(from: string) else {
             return nil
@@ -560,6 +577,7 @@ public class FractionFormatter: NumberFormatter, @unchecked Sendable {
         return self.string(from: NSNumber(value: decimal))
     }
 
+    /// Parses a fraction-like string and formats it as either Unicode or built-up output.
     public func string(from str: String, as fractionType: FractionType) -> String? {
         switch fractionType {
         case .Unicode:
@@ -569,6 +587,7 @@ public class FractionFormatter: NumberFormatter, @unchecked Sendable {
         }
     }
 
+    /// Formats an `NSNumber` as either Unicode or built-up fraction output.
     public func string(from number: NSNumber, as fractionType: FractionType) -> String? {
         let value = Double(truncating: number)
         guard value.isFinite else {
@@ -607,6 +626,7 @@ public class FractionFormatter: NumberFormatter, @unchecked Sendable {
         return applyNegativeStyle(formattedAbsolute, isNegative: isNegative)
     }
 
+    /// Formats an `NSNumber` using Unicode fraction output.
     public override func string(from number: NSNumber) -> String? {
         string(from: number, as: .Unicode)
     }
@@ -647,6 +667,7 @@ public class FractionFormatter: NumberFormatter, @unchecked Sendable {
         return rendered.replacingOccurrences(of: pluralUnit, with: singularUnit, options: .backwards)
     }
 
+    /// Extracts the unit suffix from a rendered measurement string by removing the numeric prefix.
     private func trailingUnit(in rendered: String, numberString: String) -> String? {
         guard let range = rendered.range(of: numberString) else {
             return nil
