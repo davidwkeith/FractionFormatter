@@ -651,6 +651,7 @@ public class FractionFormatter: NumberFormatter, @unchecked Sendable {
 
     // MARK: - Measurement helper
 
+#if canImport(ObjectiveC)
     /**
      Formats a measurement using this formatter for the numeric portion.
 
@@ -685,8 +686,10 @@ public class FractionFormatter: NumberFormatter, @unchecked Sendable {
 
         return rendered.replacingOccurrences(of: pluralUnit, with: singularUnit, options: .backwards)
     }
+#endif
 
     /// Extracts the unit suffix from a rendered measurement string by removing the numeric prefix.
+#if canImport(ObjectiveC)
     private func trailingUnit(in rendered: String, numberString: String) -> String? {
         guard let range = rendered.range(of: numberString) else {
             return nil
@@ -694,4 +697,5 @@ public class FractionFormatter: NumberFormatter, @unchecked Sendable {
         let suffix = rendered[range.upperBound...].trimmingCharacters(in: .whitespacesAndNewlines)
         return suffix.isEmpty ? nil : suffix
     }
+#endif
 }

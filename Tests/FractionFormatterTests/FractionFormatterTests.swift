@@ -200,6 +200,7 @@ final class FractionFormatterTests: XCTestCase {
         XCTAssertEqual(formatter.double(from: "⯪"), 0.5)
     }
 
+#if canImport(ObjectiveC)
     func testMeasurementHelper() {
         let formatter = FractionFormatter()
         let measurementFormatter = MeasurementFormatter()
@@ -223,6 +224,7 @@ final class FractionFormatterTests: XCTestCase {
             XCTAssertTrue(rendered.contains("foot") || rendered.contains("ft") || rendered.contains("′"))
         }
     }
+#endif
 
     func testRoundTripFuzz() {
         let formatter = FractionFormatter()
@@ -246,25 +248,30 @@ final class FractionFormatterTests: XCTestCase {
         }
     }
     
-    static var allTests = [
-        ("testScripted", testScripted),
-        ("testRemoveFormatting", testRemoveFormatting),
-        ("testStringBuiltUp", testStringBuiltUp),
-        ("testParseVulgarFraction", testParseVulgarFraction),
-        ("testVulgarFractions", testVulgarFractions),
-        ("testCustomUnicodeFractions", testCustomUnicodeFractions),
-        ("testComplexVulgarFractions", testComplexVulgarFractions),
-        ("testExpectedNils", testExpectedNils),
-        ("testInvalidBuiltUpFractions", testInvalidBuiltUpFractions),
-        ("testNegativeMixedFractionParsing", testNegativeMixedFractionParsing),
-        ("testNegativeAndZeroFormatting", testNegativeAndZeroFormatting),
-        ("testLocaleAwareParsing", testLocaleAwareParsing),
-        ("testReductionPolicyMaxDenominator", testReductionPolicyMaxDenominator),
-        ("testNegativeFormattingOptions", testNegativeFormattingOptions),
-        ("testTypographyOptions", testTypographyOptions),
-        ("testCustomVulgarFractions", testCustomVulgarFractions),
-        ("testMeasurementHelper", testMeasurementHelper),
-        ("testRoundTripFuzz", testRoundTripFuzz),
-        ("testPerformanceFormatting", testPerformanceFormatting),
-    ]
+    static var allTests: [(String, (FractionFormatterTests) -> () -> Void)] {
+        var tests: [(String, (FractionFormatterTests) -> () -> Void)] = [
+            ("testScripted", testScripted),
+            ("testRemoveFormatting", testRemoveFormatting),
+            ("testStringBuiltUp", testStringBuiltUp),
+            ("testParseVulgarFraction", testParseVulgarFraction),
+            ("testVulgarFractions", testVulgarFractions),
+            ("testCustomUnicodeFractions", testCustomUnicodeFractions),
+            ("testComplexVulgarFractions", testComplexVulgarFractions),
+            ("testExpectedNils", testExpectedNils),
+            ("testInvalidBuiltUpFractions", testInvalidBuiltUpFractions),
+            ("testNegativeMixedFractionParsing", testNegativeMixedFractionParsing),
+            ("testNegativeAndZeroFormatting", testNegativeAndZeroFormatting),
+            ("testLocaleAwareParsing", testLocaleAwareParsing),
+            ("testReductionPolicyMaxDenominator", testReductionPolicyMaxDenominator),
+            ("testNegativeFormattingOptions", testNegativeFormattingOptions),
+            ("testTypographyOptions", testTypographyOptions),
+            ("testCustomVulgarFractions", testCustomVulgarFractions),
+            ("testRoundTripFuzz", testRoundTripFuzz),
+            ("testPerformanceFormatting", testPerformanceFormatting),
+        ]
+#if canImport(ObjectiveC)
+        tests.append(("testMeasurementHelper", testMeasurementHelper))
+#endif
+        return tests
+    }
 }
