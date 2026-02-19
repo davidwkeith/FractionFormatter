@@ -56,6 +56,7 @@ fractionFormatter.double(from: "1½")                  // 1.5
 fractionFormatter.double(from: "1 1/2")               // 1.5
 fractionFormatter.string(from: "1 1/2")               // "1½"
 fractionFormatter.string(from: "1½", as: .builtUp)   // "1 1/2"
+fractionFormatter.string(from: "1½", as: .caseFraction) // "1 1/2" (case-fraction source text)
 ```
 
 ## New Configuration Features
@@ -102,6 +103,16 @@ formatter.double(from: "⯪") // 0.5
 
 - `.unicode` for Unicode output (for example, `"1½"` or `"¹²³⁄₁₀₀₀"`)
 - `.builtUp` for slash-separated output (for example, `"1 1/2"`)
+- `.caseFraction` for slash-separated source text intended for typographic case-fraction rendering (for example, `"1 1/2"`)
+
+On Apple platforms, you can request OpenType fraction features using attributed output:
+
+```swift
+let attributed = fractionFormatter.attributedString(
+    from: NSNumber(value: 1.5),
+    as: .caseFraction
+)
+```
 
 ## Filing Feature Requests and Issues
 

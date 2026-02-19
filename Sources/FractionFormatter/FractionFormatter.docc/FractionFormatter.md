@@ -23,6 +23,7 @@ Use this package when you need deterministic fraction parsing/formatting behavio
 - ``FractionFormatter/string(from:)``
 - ``FractionFormatter/double(from:)``
 - ``FractionFormatter/FractionType``
+- ``FractionFormatter/attributedString(from:as:attributes:)``
 
 ### Parsing
 
@@ -43,10 +44,14 @@ Use this package when you need deterministic fraction parsing/formatting behavio
 
 - ``FractionFormatter/unicodeFormattingStyle``
 - ``FractionFormatter/UnicodeFormattingStyle``
+- ``FractionFormatter/caseFractionStyle``
+- ``FractionFormatter/CaseFractionStyle``
 - ``FractionFormatter/unicodeWholeFractionSeparator``
 - ``FractionFormatter/unicodeDivisionSeparator``
 - ``FractionFormatter/builtUpWholeFractionSeparator``
 - ``FractionFormatter/builtUpDivisionSeparator``
+- ``FractionFormatter/caseFractionWholeFractionSeparator``
+- ``FractionFormatter/caseFractionDivisionSeparator``
 
 ### Extensibility
 

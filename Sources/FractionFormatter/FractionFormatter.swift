@@ -5,6 +5,9 @@
 //
 
 import Foundation
+#if canImport(CoreText)
+import CoreText
+#endif
 
 /**
  # FractionFormatter
@@ -43,6 +46,15 @@ public class FractionFormatter: NumberFormatter, @unchecked Sendable {
 
         /// Render numerator and denominator as regular digits separated by a fraction slash.
         case inline
+    }
+
+    /// Controls how case-fraction typography is requested for attributed output.
+    public enum CaseFractionStyle: Equatable {
+        /// Uses diagonal fractions (OpenType `frac`).
+        case diagonal
+
+        /// Uses vertical/stacked fractions when supported by the active font.
+        case vertical
     }
 
     /// Default Unicode vulgar fractions map.
@@ -109,8 +121,12 @@ public class FractionFormatter: NumberFormatter, @unchecked Sendable {
         /// Preferred lower-camel alias for ``FractionType/BuiltUp``.
         public static var builtUp: FractionType { .BuiltUp }
 
+        /// Preferred lower-camel alias for ``FractionType/CaseFraction``.
+        public static var caseFraction: FractionType { .CaseFraction }
+
         case Unicode
         case BuiltUp
+        case CaseFraction
     }
 
     /// Locale used for parsing plain decimal input. Defaults to formatter locale.
@@ -140,6 +156,12 @@ public class FractionFormatter: NumberFormatter, @unchecked Sendable {
     /// Separator between numerator and denominator for built-up output.
     public var builtUpDivisionSeparator: String = "/"
 
+    /// Separator between whole and fraction for case-fraction source text.
+    public var caseFractionWholeFractionSeparator: String = " "
+
+    /// Separator between numerator and denominator for case-fraction source text.
+    public var caseFractionDivisionSeparator: String = "/"
+
     /// Separator between whole and fraction for Unicode output.
     public var unicodeWholeFractionSeparator: String = ""
 
@@ -148,6 +170,9 @@ public class FractionFormatter: NumberFormatter, @unchecked Sendable {
 
     /// Input separators accepted for numerator/denominator parsing.
     public var acceptedInputDivisionSeparators: Set<Character> = ["/", "⁄"]
+
+    /// Typography style requested by attributed case-fraction rendering.
+    public var caseFractionStyle: CaseFractionStyle = .diagonal
 
     private static let defaultSlash: Character = "/"
     private static let defaultFractionSlash: Character = "⁄"
@@ -348,6 +373,21 @@ public class FractionFormatter: NumberFormatter, @unchecked Sendable {
             return "0"
         }
         return components.joined(separator: builtUpWholeFractionSeparator)
+    }
+
+    /// Formats a mixed fraction as slash text intended for case-fraction typography.
+    private func formatCaseFraction(whole: Int, numerator: Int, denominator: Int) -> String {
+        var components: [String] = []
+        if whole > 0 {
+            components.append(String(whole))
+        }
+        if numerator > 0 {
+            components.append("\(numerator)\(caseFractionDivisionSeparator)\(denominator)")
+        }
+        if components.isEmpty {
+            return "0"
+        }
+        return components.joined(separator: caseFractionWholeFractionSeparator)
     }
 
     /// Formats a mixed fraction in Unicode form using vulgar glyphs or configured fallback rendering.
@@ -602,6 +642,11 @@ public class FractionFormatter: NumberFormatter, @unchecked Sendable {
             return string(from: str)
         case .BuiltUp:
             return builtUp(from: str)
+        case .CaseFraction:
+            guard let decimal = double(from: str) else {
+                return nil
+            }
+            return self.string(from: NSNumber(value: decimal), as: .CaseFraction)
         }
     }
 
@@ -636,6 +681,12 @@ public class FractionFormatter: NumberFormatter, @unchecked Sendable {
                 numerator: reduced.numerator,
                 denominator: reduced.denominator
             )
+        case .CaseFraction:
+            formattedAbsolute = formatCaseFraction(
+                whole: wholeUnits,
+                numerator: reduced.numerator,
+                denominator: reduced.denominator
+            )
         }
 
         guard let formattedAbsolute else {
@@ -648,6 +699,31 @@ public class FractionFormatter: NumberFormatter, @unchecked Sendable {
     public override func string(from number: NSNumber) -> String? {
         string(from: number, as: .Unicode)
     }
+
+    /// Returns an attributed fraction string and applies case-fraction OpenType features when requested.
+#if canImport(CoreText) && canImport(ObjectiveC)
+    @available(iOS 10.0, tvOS 10.0, watchOS 3.0, macOS 10.12, *)
+    public func attributedString(
+        from number: NSNumber,
+        as fractionType: FractionType = .CaseFraction,
+        attributes: [NSAttributedString.Key: Any] = [:]
+    ) -> NSAttributedString? {
+        guard let rendered = string(from: number, as: fractionType) else {
+            return nil
+        }
+
+        var attrs = attributes
+        if fractionType == .CaseFraction {
+            let selector: Int = (caseFractionStyle == .vertical) ? kVerticalFractionsSelector : kDiagonalFractionsSelector
+            let featureSettings: [[CFString: Any]] = [[
+                kCTFontFeatureTypeIdentifierKey: kFractionsType,
+                kCTFontFeatureSelectorIdentifierKey: selector
+            ]]
+            attrs[NSAttributedString.Key(rawValue: kCTFontFeatureSettingsAttribute as String)] = featureSettings
+        }
+        return NSAttributedString(string: rendered, attributes: attrs)
+    }
+#endif
 
     // MARK: - Measurement helper
 

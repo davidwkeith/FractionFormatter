@@ -61,6 +61,14 @@ final class FractionFormatterTests: XCTestCase {
         }
     }
 
+    func testStringCaseFraction() {
+        let formatter = FractionFormatter()
+        XCTAssertEqual(formatter.string(from: NSNumber(value: 1.5), as: .caseFraction), "1 1/2")
+        XCTAssertEqual(formatter.string(from: "1½", as: .caseFraction), "1 1/2")
+        formatter.caseFractionWholeFractionSeparator = ""
+        XCTAssertEqual(formatter.string(from: NSNumber(value: 1.5), as: .caseFraction), "11/2")
+    }
+
     func testParseVulgarFraction() {
         let fractionExamples = [
             1.5: "1½",
@@ -224,6 +232,15 @@ final class FractionFormatterTests: XCTestCase {
             XCTAssertTrue(rendered.contains("foot") || rendered.contains("ft") || rendered.contains("′"))
         }
     }
+
+#if canImport(CoreText)
+    func testAttributedCaseFraction() {
+        let formatter = FractionFormatter()
+        let attributed = formatter.attributedString(from: NSNumber(value: 1.5), as: .caseFraction)
+        XCTAssertNotNil(attributed)
+        XCTAssertEqual(attributed?.string, "1 1/2")
+    }
+#endif
 #endif
 
     func testRoundTripFuzz() {
@@ -253,6 +270,7 @@ final class FractionFormatterTests: XCTestCase {
             ("testScripted", testScripted),
             ("testRemoveFormatting", testRemoveFormatting),
             ("testStringBuiltUp", testStringBuiltUp),
+            ("testStringCaseFraction", testStringCaseFraction),
             ("testParseVulgarFraction", testParseVulgarFraction),
             ("testVulgarFractions", testVulgarFractions),
             ("testCustomUnicodeFractions", testCustomUnicodeFractions),
@@ -271,6 +289,9 @@ final class FractionFormatterTests: XCTestCase {
         ]
 #if canImport(ObjectiveC)
         tests.append(("testMeasurementHelper", testMeasurementHelper))
+#if canImport(CoreText)
+        tests.append(("testAttributedCaseFraction", testAttributedCaseFraction))
+#endif
 #endif
         return tests
     }
