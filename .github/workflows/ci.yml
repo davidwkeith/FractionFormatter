@@ -35,7 +35,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: swift package dump-symbol-graph
-      - run: test -d .build/symbolgraphs
+      - run: find .build -type f -name 'FractionFormatter.symbols.json' | grep -q .
 
   format:
     name: Format Lint
