@@ -7,19 +7,28 @@ on:
   pull_request:
 
 jobs:
-  test:
-    name: Test (${{ matrix.os }}, Swift ${{ matrix.swift }})
-    runs-on: ${{ matrix.os }}
+  test-linux:
+    name: Test (ubuntu, Swift ${{ matrix.swift }})
+    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest]
         swift: ['5.9', '5.10']
     steps:
       - uses: actions/checkout@v4
       - uses: swift-actions/setup-swift@v2
         with:
           swift-version: ${{ matrix.swift }}
+      - run: swift build
+      - run: swift test
+
+  test-macos:
+    name: Test (macOS, Xcode toolchain)
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: xcode-select -p
+      - run: swift --version
       - run: swift build
       - run: swift test
 
