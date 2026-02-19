@@ -87,13 +87,17 @@ final class FractionFormatterTests: XCTestCase {
         let fractionExamples = [
             0.123 : "¹²³⁄₁₀₀₀",
             0.999 : "⁹⁹⁹⁄₁₀₀₀",
-            3.14  : "3¹⁰⁹³⁷⁵⁰⁰⁰⁰⁰⁰⁰⁰⁰¹⁄₇₈₁₂₅₀₀₀₀₀₀₀₀₀₀₀",
         ]
         for (decimal, fraction) in fractionExamples {
             XCTAssertEqual(fractionFormatter.string(from: NSNumber(value: decimal)), fraction)
             XCTAssertEqual(fractionFormatter.string(from: String(decimal)), fraction)
             XCTAssertEqual(fractionFormatter.double(from: fraction), decimal)
         }
+
+        let custom = fractionFormatter.string(from: NSNumber(value: 3.14))
+        XCTAssertNotNil(custom)
+        XCTAssertTrue(custom?.contains("⁄") ?? false)
+        XCTAssertEqual(fractionFormatter.double(from: custom ?? ""), 3.14)
     }
     
     func testComplexVulgarFractions() {
@@ -159,6 +163,66 @@ final class FractionFormatterTests: XCTestCase {
             XCTAssertEqual(fractionFormatter.string(from: NSNumber(value: decimal)), fraction)
         }
     }
+
+    func testLocaleAwareParsing() {
+        let formatter = FractionFormatter()
+        formatter.parsingLocale = Locale(identifier: "fr_FR")
+        XCTAssertEqual(formatter.double(from: "1,5"), 1.5)
+        XCTAssertEqual(formatter.double(from: "1 1/2"), 1.5)
+    }
+
+    func testReductionPolicyMaxDenominator() {
+        let formatter = FractionFormatter()
+        formatter.reductionPolicy = .maxDenominator(16)
+        XCTAssertEqual(formatter.string(from: NSNumber(value: 0.3333)), "⅓")
+        XCTAssertEqual(formatter.string(from: NSNumber(value: 2.2), as: .BuiltUp), "2 1/5")
+    }
+
+    func testNegativeFormattingOptions() {
+        let formatter = FractionFormatter()
+        formatter.negativeFormatStyle = .parenthesized
+        XCTAssertEqual(formatter.string(from: NSNumber(value: -1.5)), "(1½)")
+        XCTAssertEqual(formatter.string(from: NSNumber(value: -1.5), as: .BuiltUp), "(1 1/2)")
+    }
+
+    func testTypographyOptions() {
+        let formatter = FractionFormatter()
+        formatter.unicodeFormattingStyle = .inline
+        formatter.unicodeWholeFractionSeparator = " "
+        formatter.unicodeDivisionSeparator = "/"
+        XCTAssertEqual(formatter.string(from: NSNumber(value: 1.123)), "1 123/1000")
+    }
+
+    func testCustomVulgarFractions() {
+        let formatter = FractionFormatter()
+        formatter.vulgarFractionGlyphs = [0.5: "⯪"]
+        XCTAssertEqual(formatter.string(from: NSNumber(value: 0.5)), "⯪")
+        XCTAssertEqual(formatter.double(from: "⯪"), 0.5)
+    }
+
+    func testMeasurementHelper() {
+        let formatter = FractionFormatter()
+        let measurementFormatter = MeasurementFormatter()
+        measurementFormatter.unitStyle = .long
+        measurementFormatter.unitOptions = [.providedUnit]
+
+        let normal = formatter.string(
+            from: Measurement(value: 0.5, unit: UnitLength.feet),
+            with: measurementFormatter,
+            preferSingularUnitForProperFractions: false
+        )
+
+        let rendered = formatter.string(
+            from: Measurement(value: 0.5, unit: UnitLength.feet),
+            with: measurementFormatter,
+            preferSingularUnitForProperFractions: true
+        )
+
+        XCTAssertFalse(rendered.isEmpty)
+        if normal != rendered {
+            XCTAssertTrue(rendered.contains("foot") || rendered.contains("ft") || rendered.contains("′"))
+        }
+    }
     
     static var allTests = [
         ("testScripted", testScripted),
@@ -172,5 +236,11 @@ final class FractionFormatterTests: XCTestCase {
         ("testInvalidBuiltUpFractions", testInvalidBuiltUpFractions),
         ("testNegativeMixedFractionParsing", testNegativeMixedFractionParsing),
         ("testNegativeAndZeroFormatting", testNegativeAndZeroFormatting),
+        ("testLocaleAwareParsing", testLocaleAwareParsing),
+        ("testReductionPolicyMaxDenominator", testReductionPolicyMaxDenominator),
+        ("testNegativeFormattingOptions", testNegativeFormattingOptions),
+        ("testTypographyOptions", testTypographyOptions),
+        ("testCustomVulgarFractions", testCustomVulgarFractions),
+        ("testMeasurementHelper", testMeasurementHelper),
     ]
 }

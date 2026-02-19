@@ -58,6 +58,44 @@ fractionFormatter.string(from: "1 1/2")               // "1½"
 fractionFormatter.string(from: "1½", as: .BuiltUp)   // "1 1/2"
 ```
 
+## New Configuration Features
+
+`FractionFormatter` now supports configurable parsing, formatting, and extensibility:
+
+- Locale-aware parsing (`parsingLocale`, `allowsLocaleAwareParsing`)
+- Precision/reduction policies (`reductionPolicy`)
+- Negative formatting styles (`negativeFormatStyle`, `negativeSignSymbol`)
+- Typography controls (`unicodeFormattingStyle`, separator properties)
+- Custom vulgar-fraction glyph maps (`vulgarFractionGlyphs`)
+- Measurement formatting helper with optional singular-unit workaround
+
+```swift
+let formatter = FractionFormatter()
+
+// 1) Locale-aware parsing
+formatter.parsingLocale = Locale(identifier: "fr_FR")
+formatter.double(from: "1,5") // 1.5
+
+// 2) Rational reduction control
+formatter.reductionPolicy = .maxDenominator(16)
+formatter.string(from: NSNumber(value: 2.2), as: .BuiltUp) // "2 1/5"
+
+// 3) Negative display style
+formatter.negativeFormatStyle = .parenthesized
+formatter.string(from: NSNumber(value: -1.5)) // "(1½)"
+
+// 4) Typography customization
+formatter.unicodeFormattingStyle = .inline
+formatter.unicodeWholeFractionSeparator = " "
+formatter.unicodeDivisionSeparator = "/"
+formatter.string(from: NSNumber(value: 1.123)) // "1 123/1000"
+
+// 5) Custom glyphs
+formatter.vulgarFractionGlyphs = [0.5: "⯪"]
+formatter.string(from: NSNumber(value: 0.5)) // "⯪"
+formatter.double(from: "⯪") // 0.5
+```
+
 ## Fraction Output Styles
 
 `FractionFormatter.FractionType` supports:
@@ -82,6 +120,21 @@ As of February 19, 2026 there is no public API on `MeasurementFormatter` to forc
 1. Prefer `.short`/`.medium` unit styles (`ft`, `kg`, etc.) where singular/plural words are not shown.
 2. For values where `abs(value) < 1`, use a custom localized phrase (`"half a foot"`, `"one half of a foot"`, etc.) from your app localization resources.
 3. If you only need an English-style output path, post-process the unit word for that range.
+
+You can also use the built-in helper:
+
+```swift
+let fractionFormatter = FractionFormatter()
+let measurementFormatter = MeasurementFormatter()
+measurementFormatter.unitStyle = .long
+measurementFormatter.unitOptions = [.providedUnit]
+
+let rendered = fractionFormatter.string(
+    from: Measurement(value: 0.5, unit: UnitLength.feet),
+    with: measurementFormatter,
+    preferSingularUnitForProperFractions: true
+)
+```
 
 Example (option 3):
 
