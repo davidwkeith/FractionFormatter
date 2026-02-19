@@ -26,7 +26,7 @@ In Xcode, use `File > Add Package Dependencies...` and enter:
 Add `FractionFormatter` to your `Package.swift` dependencies:
 
 ```swift
-.package(url: "https://gitlab.com/davidwkeith/fractionformatter.git", from: "1.0.0")
+.package(url: "https://gitlab.com/davidwkeith/fractionformatter.git", from: "1.0.1")
 ```
 
 Then add it to your target dependencies:
